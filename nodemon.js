@@ -176,7 +176,13 @@ watchFileChecker.verify = function() {
   }
 };
 
+function growl(m) {
+  if (program.options.growl)
+    exec("growlnotify -t [nodemon] -m '" + m + "'");
+}
+
 function startNode() {
+  growl("Starting...");
   util.log('\x1B[32m[nodemon] starting `' + program.options.exec + ' ' + program.args.join(' ') + '`\x1B[0m');
 
   lastStarted = Date.now();
@@ -216,9 +222,11 @@ function startNode() {
       util.log('\x1B[32m[nodemon] clean exit - waiting for changes before restart\x1B[0m');
       child = null;
     } else if (program.options.exitcrash) {
+      growl("App crashed...");
       util.log('\x1B[1;31m[nodemon] app crashed\x1B[0m');
       process.exit(0);
     } else {
+      growl("App crashed... (waiting for changes)");
       util.log('\x1B[1;31m[nodemon] app crashed - waiting for file changes before starting...\x1B[0m');
       child = null;
     }
@@ -544,6 +552,8 @@ function getNodemonArgs() {
       options.exitcrash = true;
     } else if (arg === '--delay' || arg === '-d') {
       options.delay = parseInt(args.shift(), 10);
+    } else if (arg === '--growl' || arg === '-g') {
+      options.growl = true;
     } else if (arg === '--exec' || arg === '-x') {
       options.exec = args.shift();
     } else if (arg === '--legacy-watch' || arg === '-L') {
